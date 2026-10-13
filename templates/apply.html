@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends "base.html" %}
+
+{% block title %}Job Application{% endblock %}
+
+{% block content %}
+    <h2>Submit Your Application</h2>
+    <hr>
+    <form action="" method="POST" style="max-width: 500px;">
+        <label style="font-weight: bold;">Full Name:</label><br>
+        <input type="text" name="name" required style="width: 100%; padding: 10px; margin: 8px 0 20px 0; border: 1px solid #ccc; border-radius: 4px;"><br>
+        
+        <label style="font-weight: bold;">Highest Qualification:</label><br>
+        <input type="text" name="qualification" required style="width: 100%; padding: 10px; margin: 8px 0 20px 0; border: 1px solid #ccc; border-radius: 4px;"><br>
+
+        <label style="font-weight: bold;">Years of Experience:</label><br>
+        <input type="text" name="experience" required style="width: 100%; padding: 10px; margin: 8px 0 20px 0; border: 1px solid #ccc; border-radius: 4px;"><br>
+        
+        <button type="submit" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Submit Application</button>
+    </form>
+{% endblock %}
+
+
+</body>
+</html>

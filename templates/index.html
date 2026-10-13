@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+</head>
+<body>
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Available Faculty Positions</h1>
+    <div class="row">
+        {% for job in jobs %}
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title text-primary">{{ job[1] }}</h4>
+                    <p class="card-text"><strong>Requirements:</strong> {{ job[2] }}</p>
+                    <hr>
+                    
+                    {% set status = user_status.get(job[0]) %}
+                    
+                    {% if not status %}
+                        <a href="/apply/{{ job[0] }}" class="btn btn-primary w-100">Apply for this Position</a>
+                    {% elif status == 'Pending Review' %}
+                        <button class="btn btn-warning w-100" disabled>⏳ Application Under Admin Review</button>
+                    {% elif status == 'Approved for Test' %}
+                        <div class="alert alert-info p-2 text-center mb-2">Approved! You have 45 mins for the test.</div>
+                        <a href="/test/{{ job[1] }}" class="btn btn-success w-100">Start 45-Min Eligibility Test</a>
+                    {% elif status == 'Selected' %}
+                        <div class="alert alert-success p-2 text-center">🎉 Congratulations! You are Selected.</div>
+                    {% elif status == 'Rejected' %}
+                        <div class="alert alert-danger p-2 text-center">Application/Test Result: Rejected</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+</body>
+</html>

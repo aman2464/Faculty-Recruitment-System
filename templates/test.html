@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject }} Assessment - Faculty Recruitment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --primary-blue: #3b82f6;
+            --text-main: #1e293b;
+        }
+
+        body { 
+            background-color: #f1f5f9; 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-main);
+            padding-bottom: 50px;
+        }
+
+        /* Glassmorphism Header */
+        .assessment-header {
+            position: sticky;
+            top: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .timer-box {
+            background: #fff1f2;
+            color: #e11d48;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border: 1px solid #fecdd3;
+        }
+
+        .question-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 25px;
+        }
+
+        /* Modern Custom Radio Buttons */
+        .option-container {
+            display: block;
+            position: relative;
+            padding: 15px 15px 15px 45px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .option-container:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .option-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 18px;
+            left: 15px;
+            height: 20px;
+            width: 20px;
+            background-color: #fff;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+        }
+
+        .option-container input:checked ~ .checkmark {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .option-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .option-container .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .option-container input:checked + label {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .btn-submit {
+            background: var(--primary-blue);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 2000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+    <div class="spinner-grow text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+    <h3 class="mt-4 fw-bold animate__animated animate__pulse animate__infinite">Finalizing Results...</h3>
+    <p class="text-muted">Calculating your competency score.</p>
+</div>
+
+<header class="assessment-header mb-5">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">{{ subject }}</h4>
+            <div class="progress mt-2" style="height: 6px; width: 200px;">
+                <div id="progressBar" class="progress-bar bg-success" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="text-end">
+            <span class="d-block text-muted small fw-bold text-uppercase">Time Left</span>
+            <div id="timer" class="timer-box">45:00</div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <form id="quizForm" method="POST" action="/test/{{ subject }}">
+        {% if questions %}
+            {% for q in questions %}
+            <div class="question-card animate__animated animate__fadeInUp" style="animation-delay: {{ loop.index0 * 0.05 }}s">
+                <p class="question-text">{{ q[2] }}</p>
+                
+                <div class="row g-3">
+                    {% for i in range(3, 7) %}
+                    <div class="col-md-6">
+                        <label class="option-container w-100">
+                            <input type="radio" name="{{ q[0] }}" value="{{ q[i] }}" {% if i == 3 %}required{% endif %}>
+                            <span class="checkmark"></span>
+                            {{ q[i] }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="text-center mt-5">
+                <button type="submit" class="btn btn-primary btn-submit animate__animated animate__pulse animate__infinite">
+                    Submit Assessment
+                </button>
+            </div>
+        {% else %}
+            <div class="alert alert-light text-center p-5 shadow-sm rounded-4">
+                <i class="bi bi-search mb-3 d-block text-muted" style="font-size: 3rem;"></i>
+                <h4 class="fw-bold">No Questions Available</h4>
+                <p>The question pool for this subject is currently empty.</p>
+                <a href="/jobs" class="btn btn-primary px-4">Go Back</a>
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+    const totalMinutes = 45;
+    let timeLimit = totalMinutes * 60;
+    const timerElement = document.getElementById('timer');
+    const quizForm = document.getElementById('quizForm');
+    const storageKey = "timer_{{ session['user'] }}_{{ subject }}";
+
+    // Persist timer
+    if (localStorage.getItem(storageKey)) {
+        timeLimit = parseInt(localStorage.getItem(storageKey));
+    }
+
+    const countdown = setInterval(() => {
+        let min = Math.floor(timeLimit / 60);
+        let sec = timeLimit % 60;
+        timerElement.innerHTML = `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
+
+        if (timeLimit <= 0) {
+            clearInterval(countdown);
+            localStorage.removeItem(storageKey);
+            quizForm.submit();
+        } else {
+            timeLimit--;
+            localStorage.setItem(storageKey, timeLimit);
+        }
+    }, 1000);
+
+    // Progress Bar Logic
+    const radios = document.querySelectorAll('input[type="radio"]');
+    radios.forEach(r => {
+        r.addEventListener('change', () => {
+            const answered = document.querySelectorAll('input[type="radio"]:checked').length;
+            const percent = (answered / 40) * 100;
+            document.getElementById('progressBar').style.width = percent + '%';
+        });
+    });
+
+    // Form Submission / Loading State
+    quizForm.onsubmit = function() {
+        localStorage.removeItem(storageKey);
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    };
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
